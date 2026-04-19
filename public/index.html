@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumePortal — Connect Talent with Opportunity</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f5f3ee;
+    --accent: #e84545;
+    --gold: #c9a84c;
+    --muted: #6b6b78;
+    --card: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* NAV */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 4rem; background: var(--ink); }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--paper); letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 1rem; }
+  .btn { padding: 0.6rem 1.5rem; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+  .btn-outline { border: 1.5px solid var(--paper); color: var(--paper); background: transparent; }
+  .btn-outline:hover { background: var(--paper); color: var(--ink); }
+  .btn-solid { background: var(--accent); color: white; border: none; }
+  .btn-solid:hover { background: #c73333; transform: translateY(-1px); }
+
+  /* HERO */
+  .hero { min-height: 90vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 4rem; gap: 3rem; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; right: -100px; top: -100px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(232,69,69,0.08) 0%, transparent 70%); pointer-events: none; }
+  .hero-tag { display: inline-block; background: var(--ink); color: var(--gold); font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 0.4rem 1rem; border-radius: 100px; margin-bottom: 1.5rem; }
+  .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 1.5rem; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { font-size: 1.1rem; color: var(--muted); line-height: 1.7; margin-bottom: 2.5rem; max-width: 460px; }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-hero { padding: 0.9rem 2rem; border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.95rem; cursor: pointer; text-decoration: none; transition: all 0.25s; }
+  .btn-student { background: var(--accent); color: white; border: none; }
+  .btn-student:hover { background: #c73333; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,69,69,0.3); }
+  .btn-recruiter { background: var(--ink); color: var(--paper); border: none; }
+  .btn-recruiter:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+
+  /* HERO VISUAL */
+  .hero-visual { display: grid; grid-template-rows: 1fr 1fr; gap: 1rem; height: 480px; }
+  .card-big { background: var(--ink); border-radius: 16px; padding: 2rem; color: var(--paper); display: flex; flex-direction: column; justify-content: flex-end; position: relative; overflow: hidden; }
+  .card-big::before { content: 'STU0042'; position: absolute; top: 1.5rem; left: 2rem; font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; }
+  .card-name { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; }
+  .card-role { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+  .skills-row { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .skill-tag { background: rgba(201,168,76,0.2); color: var(--gold); padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.75rem; font-weight: 500; }
+
+  .cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .card-sm { border-radius: 12px; padding: 1.5rem; }
+  .card-sm.red { background: var(--accent); color: white; }
+  .card-sm.light { background: white; border: 1px solid #e8e6e0; }
+  .card-sm .num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; }
+  .card-sm .label { font-size: 0.82rem; opacity: 0.8; margin-top: 0.2rem; }
+
+  /* FEATURES */
+  .features { padding: 6rem 4rem; background: var(--ink); }
+  .section-label { font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1rem; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--paper); letter-spacing: -1px; margin-bottom: 3rem; max-width: 500px; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .feat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; transition: all 0.3s; }
+  .feat-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-4px); }
+  .feat-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .feat-card h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--paper); margin-bottom: 0.7rem; }
+  .feat-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+  /* CTA */
+  .cta { padding: 6rem 4rem; text-align: center; }
+  .cta h2 { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 1rem; }
+  .cta p { color: var(--muted); font-size: 1.1rem; margin-bottom: 2.5rem; }
+  .cta-btns { display: flex; gap: 1rem; justify-content: center; }
+
+  /* FOOTER */
+  footer { background: var(--ink); color: var(--muted); text-align: center; padding: 2rem; font-size: 0.85rem; }
+  footer span { color: var(--accent); }
+
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem; min-height: auto; }
+    .hero-visual { display: none; }
+    .features { padding: 4rem 1.5rem; }
+    .features-grid { grid-template-columns: 1fr; }
+    .cta { padding: 4rem 1.5rem; }
+    .cta h2 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Resume<span>Portal</span></div>
+  <div class="nav-links">
+    <a href="/login" class="btn btn-outline">Login</a>
+    <a href="/register" class="btn btn-solid">Register</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">🎓 Student Resume Portal</div>
+    <h1>Where <em>Talent</em> Meets Opportunity</h1>
+    <p>Build your professional profile, showcase projects, upload your resume, and get discovered by top recruiters — all in one place.</p>
+    <div class="hero-btns">
+      <a href="/register?role=student" class="btn-hero btn-student">🎓 I'm a Student</a>
+      <a href="/register?role=recruiter" class="btn-hero btn-recruiter">🏢 I'm a Recruiter</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="card-big">
+      <div class="card-name">Priya Sharma</div>
+      <div class="card-role">B.Tech Computer Science • 2024</div>
+      <div class="skills-row">
+        <span class="skill-tag">React</span>
+        <span class="skill-tag">Node.js</span>
+        <span class="skill-tag">MongoDB</span>
+        <span class="skill-tag">Python</span>
+      </div>
+    </div>
+    <div class="cards-row">
+      <div class="card-sm red">
+        <div class="num">4</div>
+        <div class="label">Projects Uploaded</div>
+      </div>
+      <div class="card-sm light">
+        <div class="num" style="color:var(--ink)">✓</div>
+        <div class="label" style="color:var(--muted)">Resume Verified</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="section-label">Everything You Need</div>
+  <div class="section-title">Built for Students & Recruiters</div>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon">📄</div>
+      <h3>Resume Upload</h3>
+      <p>Upload your resume as PDF and fill in all your academic and professional details in a structured format.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💻</div>
+      <h3>Project Showcase</h3>
+      <p>Add all your projects with tech stack, GitHub links and live demos. Let your work speak for itself.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🆔</div>
+      <h3>Unique Student ID</h3>
+      <p>Every student gets a unique ID (e.g. STU0001) that recruiters can use to look up your complete profile.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔍</div>
+      <h3>Smart Search</h3>
+      <p>Recruiters can find students by Student ID or search by skills to discover the right candidates.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏢</div>
+      <h3>Recruiter Dashboard</h3>
+      <p>A dedicated recruiter view with full student profile access — resume details, projects, and contact info.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⚡</div>
+      <h3>Instant Access</h3>
+      <p>No delays. Student profiles are live the moment they save their details. Apply and hire faster.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Ready to Get Started?</h2>
+  <p>Join thousands of students and recruiters already on the platform.</p>
+  <div class="cta-btns">
+    <a href="/register" class="btn-hero btn-student">Create Your Profile</a>
+    <a href="/login" class="btn-hero btn-recruiter">Login</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2024 <span>ResumePortal</span> — Built with ❤️ for students</p>
+</footer>
+
+</body>
+</html>

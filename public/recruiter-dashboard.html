@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recruiter Dashboard — ResumePortal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0a0a0f; --paper:#f5f3ee; --accent:#e84545; --gold:#c9a84c; --muted:#6b6b78; --sidebar-w:260px; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#f0ede8; font-family:'DM Sans',sans-serif; display:flex; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar { width:var(--sidebar-w); background:var(--ink); height:100vh; position:fixed; left:0; top:0; display:flex; flex-direction:column; z-index:100; }
+  .sidebar-logo { padding:1.8rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.07); font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; color:var(--paper); }
+  .sidebar-logo span { color:var(--accent); }
+  .recruiter-badge { padding:1.5rem; border-bottom:1px solid rgba(255,255,255,0.07); }
+  .badge-icon { width:44px; height:44px; background:linear-gradient(135deg,var(--gold),#e8b94c); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-bottom:0.8rem; }
+  .recruiter-name { font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; color:var(--paper); }
+  .recruiter-company { font-size:0.75rem; color:var(--gold); margin-top:0.2rem; }
+  nav.side-nav { padding:1rem 0; flex:1; }
+  .nav-item { display:flex; align-items:center; gap:0.8rem; padding:0.8rem 1.5rem; color:rgba(255,255,255,0.5); font-size:0.88rem; cursor:pointer; transition:all 0.2s; border-left:3px solid transparent; font-weight:500; }
+  .nav-item:hover { color:var(--paper); background:rgba(255,255,255,0.04); }
+  .nav-item.active { color:var(--paper); background:rgba(232,69,69,0.12); border-left-color:var(--accent); }
+  .sidebar-footer { padding:1.5rem; border-top:1px solid rgba(255,255,255,0.07); }
+  .logout-btn { width:100%; padding:0.7rem; background:rgba(232,69,69,0.15); color:var(--accent); border:1px solid rgba(232,69,69,0.3); border-radius:7px; font-family:'DM Sans',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.2s; }
+  .logout-btn:hover { background:var(--accent); color:white; }
+
+  /* MAIN */
+  .main { margin-left:var(--sidebar-w); flex:1; padding:2rem 2.5rem; }
+  .page-header { margin-bottom:2rem; }
+  .page-header h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-0.5px; }
+  .page-header p { color:var(--muted); font-size:0.9rem; margin-top:0.3rem; }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  .section-card { background:white; border-radius:12px; padding:2rem; border:1px solid #e8e5df; margin-bottom:1.5rem; }
+  .section-card h2 { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.6rem; }
+
+  /* SEARCH */
+  .search-box { display:flex; gap:1rem; align-items:center; }
+  .search-input { flex:1; padding:1rem 1.5rem; background:#fafaf8; border:2px solid #e0ddd7; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:1rem; color:var(--ink); transition:border-color 0.2s; }
+  .search-input:focus { outline:none; border-color:var(--accent); }
+  .search-btn { padding:1rem 2rem; background:var(--accent); color:white; border:none; border-radius:10px; font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+  .search-btn:hover { background:#c73333; transform:translateY(-1px); }
+  .search-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+  /* STUDENT PROFILE RESULT */
+  .result-container { display:none; }
+  .profile-header { background:var(--ink); border-radius:12px; padding:2rem; color:white; margin-bottom:1.5rem; display:grid; grid-template-columns:1fr auto; align-items:center; gap:2rem; }
+  .profile-header .name { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; }
+  .profile-header .meta { color:rgba(255,255,255,0.6); margin-top:0.3rem; font-size:0.9rem; }
+  .profile-header .id-badge { background:var(--gold); color:var(--ink); font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; padding:0.6rem 1.5rem; border-radius:8px; text-align:center; }
+  .profile-header .id-label { font-size:0.7rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:rgba(0,0,0,0.6); }
+
+  .profile-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+
+  .info-block h3 { font-family:'Syne',sans-serif; font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.8rem; }
+  .info-row { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid #f0ede8; font-size:0.88rem; }
+  .info-row:last-child { border-bottom:none; }
+  .info-label { color:var(--muted); }
+  .info-value { font-weight:500; color:var(--ink); text-align:right; }
+  .info-value a { color:var(--accent); text-decoration:none; }
+
+  .skills-section { margin-bottom:1.5rem; }
+  .skill-tag { display:inline-block; background:rgba(10,10,15,0.08); color:var(--ink); padding:0.35rem 0.9rem; border-radius:100px; font-size:0.78rem; font-weight:600; margin:0.25rem; }
+
+  .project-card { background:#fafaf8; border:1.5px solid #e0ddd7; border-radius:10px; padding:1.2rem; margin-bottom:0.8rem; }
+  .project-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; margin-bottom:0.4rem; }
+  .project-desc { color:var(--muted); font-size:0.82rem; line-height:1.5; margin-bottom:0.8rem; }
+  .project-tech { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.6rem; }
+  .tech-tag { background:rgba(10,10,15,0.07); color:var(--ink); padding:0.2rem 0.7rem; border-radius:100px; font-size:0.72rem; font-weight:600; }
+  .project-links a { font-size:0.8rem; color:var(--accent); text-decoration:none; font-weight:500; margin-right:1rem; }
+
+  .resume-download { display:flex; align-items:center; gap:1rem; background:#fafaf8; border:1.5px solid #e0ddd7; border-radius:10px; padding:1.2rem; }
+  .resume-download .icon { font-size:2rem; }
+  .resume-download .info { flex:1; }
+  .resume-download .name { font-weight:600; }
+  .resume-download .sub { color:var(--muted); font-size:0.8rem; }
+  .download-btn { padding:0.6rem 1.5rem; background:var(--accent); color:white; border:none; border-radius:7px; font-family:'Syne',sans-serif; font-weight:700; font-size:0.82rem; cursor:pointer; text-decoration:none; }
+
+  .exp-item { background:#fafaf8; border-left:3px solid var(--accent); padding:1rem 1.2rem; border-radius:0 8px 8px 0; margin-bottom:0.8rem; }
+  .exp-role { font-weight:600; font-size:0.9rem; }
+  .exp-company { color:var(--accent); font-size:0.85rem; font-weight:500; }
+  .exp-duration { color:var(--muted); font-size:0.78rem; margin-top:0.2rem; }
+
+  .cert-item { display:flex; align-items:center; gap:0.8rem; background:#fafaf8; border:1px solid #e0ddd7; border-radius:8px; padding:0.8rem 1rem; margin-bottom:0.5rem; }
+  .cert-icon { font-size:1.2rem; }
+  .cert-name { font-weight:600; font-size:0.88rem; }
+  .cert-issuer { color:var(--muted); font-size:0.78rem; }
+
+  .not-found { text-align:center; padding:4rem 2rem; color:var(--muted); }
+  .not-found .icon { font-size:4rem; margin-bottom:1rem; }
+  .not-found h3 { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; color:var(--ink); margin-bottom:0.5rem; }
+
+  .skill-search-results { margin-top:1.5rem; }
+  .skill-result-card { background:white; border:1.5px solid #e0ddd7; border-radius:10px; padding:1.2rem; margin-bottom:0.8rem; display:flex; align-items:center; justify-content:space-between; }
+  .skill-result-info .name { font-family:'Syne',sans-serif; font-weight:700; }
+  .skill-result-info .id { color:var(--gold); font-size:0.8rem; font-weight:600; }
+  .skill-result-info .college { color:var(--muted); font-size:0.82rem; }
+  .view-btn { padding:0.5rem 1.2rem; background:var(--ink); color:white; border:none; border-radius:7px; font-family:'Syne',sans-serif; font-weight:600; font-size:0.82rem; cursor:pointer; }
+  .view-btn:hover { background:var(--accent); }
+
+  .toast { position:fixed; bottom:2rem; right:2rem; padding:0.9rem 1.5rem; border-radius:10px; font-weight:500; font-size:0.9rem; z-index:1000; transform:translateY(100px); transition:transform 0.3s; box-shadow:0 8px 32px rgba(0,0,0,0.15); }
+  .toast.show { transform:translateY(0); }
+  .toast.error { background:var(--accent); color:white; }
+
+  /* ADVANCED SEARCH */
+  .filter-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+  .filter-group { display:flex; flex-direction:column; gap:0.4rem; }
+  .filter-group label { font-size:0.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+  .filter-input { padding:0.75rem 1rem; background:#fafaf8; border:1.5px solid #e0ddd7; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.9rem; color:var(--ink); transition:border-color 0.2s; }
+  .filter-input:focus { outline:none; border-color:var(--accent); }
+  .age-range { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+  .results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+  .results-count { font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; color:var(--muted); }
+  .adv-result-card { background:white; border:1.5px solid #e0ddd7; border-radius:12px; padding:1.5rem; margin-bottom:1rem; transition:all 0.2s; }
+  .adv-result-card:hover { border-color:var(--accent); box-shadow:0 4px 16px rgba(232,69,69,0.08); }
+  .adv-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; }
+  .adv-card-name { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; color:var(--ink); }
+  .adv-card-meta { font-size:0.82rem; color:var(--muted); margin-top:0.2rem; }
+  .adv-card-badges { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; }
+  .badge { padding:0.3rem 0.8rem; border-radius:100px; font-size:0.75rem; font-weight:700; font-family:'Syne',sans-serif; }
+  .badge-id { background:var(--gold); color:var(--ink); }
+  .badge-age { background:rgba(232,69,69,0.12); color:var(--accent); }
+  .badge-cgpa { background:rgba(72,199,142,0.15); color:#2d9e6b; }
+  .adv-card-skills { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.8rem; }
+  .adv-card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid #f0ede8; }
+  .adv-card-edu { font-size:0.82rem; color:var(--muted); }
+  .age-quick-btn { display:inline-block; margin:0.3rem 0.3rem 0 0; padding:0.3rem 0.9rem; border-radius:100px; border:1.5px solid #e0ddd7; background:white; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.2s; color:var(--ink); }
+  .age-quick-btn:hover, .age-quick-btn.active { background:var(--accent); border-color:var(--accent); color:white; }
+
+  @media(max-width:900px) {
+    .profile-grid { grid-template-columns:1fr; }
+    .search-box { flex-direction:column; }
+    .filter-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Resume<span>Portal</span></div>
+  <div class="recruiter-badge">
+    <div class="badge-icon">🏢</div>
+    <div class="recruiter-name" id="recName">Loading...</div>
+    <div class="recruiter-company" id="recCompany">Recruiter</div>
+  </div>
+  <nav class="side-nav">
+    <div class="nav-item active" onclick="showTab('search-id')"><span>🔍</span> Search by Student ID</div>
+    <div class="nav-item" onclick="showTab('search-skill')"><span>⚡</span> Search by Skill</div>
+    <div class="nav-item" onclick="showTab('search-advanced')"><span>🎯</span> Advanced Search</div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">← Logout</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- SEARCH BY STUDENT ID -->
+  <div id="tab-search-id" class="tab-content active">
+    <div class="page-header">
+      <h1>Search Student by ID</h1>
+      <p>Enter a Student ID (e.g. STU0001) to view their full profile</p>
+    </div>
+
+    <div class="section-card">
+      <h2>🔍 Student ID Lookup</h2>
+      <div class="search-box">
+        <input class="search-input" type="text" id="studentIdInput" placeholder="Enter Student ID (e.g. STU0001)" oninput="this.value = this.value.toUpperCase()" onkeydown="if(event.key==='Enter') searchById()">
+        <button class="search-btn" onclick="searchById()" id="searchBtn">Search →</button>
+      </div>
+    </div>
+
+    <div id="searchResult"></div>
+  </div>
+
+  <!-- SEARCH BY SKILL -->
+  <div id="tab-search-skill" class="tab-content">
+    <div class="page-header">
+      <h1>Search by Skill</h1>
+      <p>Find students who know a specific technology or skill</p>
+    </div>
+    <div class="section-card">
+      <h2>⚡ Skill Search</h2>
+      <div class="search-box">
+        <input class="search-input" type="text" id="skillInput" placeholder="e.g. React, Python, Java, Machine Learning..." onkeydown="if(event.key==='Enter') searchBySkill()">
+        <button class="search-btn" onclick="searchBySkill()">Search →</button>
+      </div>
+    </div>
+    <div id="skillResults"></div>
+  </div>
+
+  <!-- ADVANCED SEARCH -->
+  <div id="tab-search-advanced" class="tab-content">
+    <div class="page-header">
+      <h1>Advanced Search 🎯</h1>
+      <p>Filter students by skill, age group, degree, and graduation year</p>
+    </div>
+    <div class="section-card">
+      <h2>🔧 Search Filters</h2>
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label>Skill / Technology</label>
+          <input class="filter-input" type="text" id="advSkill" placeholder="e.g. React, Python, Java">
+        </div>
+        <div class="filter-group">
+          <label>Degree</label>
+          <input class="filter-input" type="text" id="advDegree" placeholder="e.g. B.Tech, BCA, MCA">
+        </div>
+        <div class="filter-group">
+          <label>Graduation Year</label>
+          <input class="filter-input" type="text" id="advGradYear" placeholder="e.g. 2024, 2025">
+        </div>
+      </div>
+      <div class="filter-grid" style="grid-template-columns:1fr 1fr 1fr;align-items:end;">
+        <div class="filter-group">
+          <label>Age Group</label>
+          <div class="age-range">
+            <input class="filter-input" type="number" id="advMinAge" placeholder="Min age" min="15" max="50">
+            <input class="filter-input" type="number" id="advMaxAge" placeholder="Max age" min="15" max="50">
+          </div>
+        </div>
+        <div></div>
+        <div style="display:flex;gap:0.8rem;align-items:flex-end;padding-bottom:0.05rem;">
+          <button class="search-btn" style="flex:1;" onclick="searchAdvanced()">Search Students →</button>
+          <button class="search-btn" style="background:var(--ink);flex:0 0 auto;" onclick="clearAdvanced()">Clear</button>
+        </div>
+      </div>
+
+      <!-- Age group quick filters -->
+      <div style="margin-top:1rem;">
+        <span style="font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Quick Age Filters: </span>
+        <button class="age-quick-btn" onclick="setAgeGroup(18,21)">18–21</button>
+        <button class="age-quick-btn" onclick="setAgeGroup(21,24)">21–24</button>
+        <button class="age-quick-btn" onclick="setAgeGroup(24,27)">24–27</button>
+        <button class="age-quick-btn" onclick="setAgeGroup(18,30)">All Students</button>
+      </div>
+    </div>
+
+    <div id="advResults"></div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+async function init() {
+  const res = await fetch('/api/auth/me');
+  const auth = await res.json();
+  if (!auth.loggedIn || auth.user.role !== 'recruiter') { window.location.href = '/login'; return; }
+  document.getElementById('recName').textContent = auth.user.name;
+  document.getElementById('recCompany').textContent = auth.user.company || 'Recruiter';
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event?.target?.classList.add('active');
+}
+
+async function searchById() {
+  const id = document.getElementById('studentIdInput').value.trim();
+  if (!id) { showToast('Please enter a Student ID'); return; }
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  const res = await fetch('/api/recruiter/search/' + encodeURIComponent(id));
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = 'Search →';
+  document.getElementById('searchResult').innerHTML = data.success ? renderStudentProfile(data) : renderNotFound(id);
+}
+
+async function searchBySkill() {
+  const skill = document.getElementById('skillInput').value.trim();
+  if (!skill) { showToast('Please enter a skill to search'); return; }
+  const res = await fetch('/api/recruiter/search-by-skill?skill=' + encodeURIComponent(skill));
+  const data = await res.json();
+  const el = document.getElementById('skillResults');
+  if (!data.success || !data.results.length) {
+    el.innerHTML = `<div class="not-found"><div class="icon">🔍</div><h3>No students found</h3><p>No students with "${skill}" in their skill set</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="section-card"><h2>✓ Found ${data.results.length} student(s)</h2>` +
+    data.results.map(r => `
+      <div class="skill-result-card">
+        <div class="skill-result-info">
+          <div class="name">${r.student?.name || 'Unknown'}</div>
+          <div class="id">ID: ${r.student?.studentId || '—'} • ${r.student?.email || ''}</div>
+          <div class="college">${r.degree || ''} ${r.college ? '• ' + r.college : ''}</div>
+          <div style="margin-top:0.5rem;">${(r.skills||[]).slice(0,5).map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+        </div>
+        <button class="view-btn" onclick="viewStudentById('${r.student?.studentId}')">View Profile →</button>
+      </div>`).join('') + '</div>';
+}
+
+async function viewStudentById(id) {
+  document.getElementById('studentIdInput').value = id;
+  showTab('search-id');
+  await searchById();
+}
+
+function renderStudentProfile(data) {
+  const { student, resume, projects } = data;
+  return `
+    <div class="result-container" style="display:block">
+      <div class="profile-header">
+        <div>
+          <div class="name">${student.name}</div>
+          <div class="meta">📧 ${student.email} ${student.company ? '• 🏢 ' + student.company : ''}</div>
+          ${resume ? `<div class="meta" style="margin-top:0.5rem;">🎓 ${resume.degree||''} ${resume.branch ? '• ' + resume.branch : ''} ${resume.college ? '• ' + resume.college : ''}</div>` : ''}
+        </div>
+        <div class="id-badge">
+          <div class="id-label">Student ID</div>
+          ${student.studentId}
+        </div>
+      </div>
+
+      ${resume ? `
+      <div class="profile-grid">
+        <div class="section-card">
+          <h2>📞 Contact Details</h2>
+          <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${resume.phone || '—'}</span></div>
+          <div class="info-row"><span class="info-label">Email</span><span class="info-value">${student.email}</span></div>
+          <div class="info-row"><span class="info-label">Address</span><span class="info-value">${resume.address || '—'}</span></div>
+          ${resume.linkedin ? `<div class="info-row"><span class="info-label">LinkedIn</span><span class="info-value"><a href="${resume.linkedin}" target="_blank">View Profile →</a></span></div>` : ''}
+          ${resume.github ? `<div class="info-row"><span class="info-label">GitHub</span><span class="info-value"><a href="${resume.github}" target="_blank">View Profile →</a></span></div>` : ''}
+          ${resume.portfolio ? `<div class="info-row"><span class="info-label">Portfolio</span><span class="info-value"><a href="${resume.portfolio}" target="_blank">View Site →</a></span></div>` : ''}
+        </div>
+        <div class="section-card">
+          <h2>🎓 Academic Details</h2>
+          <div class="info-row"><span class="info-label">Degree</span><span class="info-value">${resume.degree || '—'}</span></div>
+          <div class="info-row"><span class="info-label">Branch</span><span class="info-value">${resume.branch || '—'}</span></div>
+          <div class="info-row"><span class="info-label">College</span><span class="info-value">${resume.college || '—'}</span></div>
+          <div class="info-row"><span class="info-label">Graduation Year</span><span class="info-value">${resume.graduationYear || '—'}</span></div>
+          <div class="info-row"><span class="info-label">CGPA</span><span class="info-value">${resume.cgpa || '—'}</span></div>
+        </div>
+      </div>
+
+      ${resume.skills?.length ? `
+      <div class="section-card">
+        <h2>⚡ Skills</h2>
+        <div>${resume.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+      </div>` : ''}
+
+      ${resume.resumeFile ? `
+      <div class="section-card">
+        <h2>📄 Resume PDF</h2>
+        <div class="resume-download">
+          <div class="icon">📄</div>
+          <div class="info"><div class="name">${resume.resumeFileName || 'Resume.pdf'}</div><div class="sub">Click to view or download</div></div>
+          <a class="download-btn" href="/uploads/resumes/${resume.resumeFile}" target="_blank">View PDF →</a>
+        </div>
+      </div>` : ''}
+
+      ${resume.experience?.length ? `
+      <div class="section-card">
+        <h2>💼 Work Experience</h2>
+        ${resume.experience.map(e => `<div class="exp-item"><div class="exp-role">${e.role}</div><div class="exp-company">${e.company}</div><div class="exp-duration">${e.duration || ''}</div>${e.description ? `<div style="color:var(--muted);font-size:0.82rem;margin-top:0.4rem;">${e.description}</div>` : ''}</div>`).join('')}
+      </div>` : ''}
+
+      ${resume.certifications?.length ? `
+      <div class="section-card">
+        <h2>🏆 Certifications</h2>
+        ${resume.certifications.map(c => `<div class="cert-item"><span class="cert-icon">🎖</span><div><div class="cert-name">${c.name}</div><div class="cert-issuer">${c.issuer || ''} ${c.year ? '• ' + c.year : ''}</div></div></div>`).join('')}
+      </div>` : ''}
+      ` : '<div class="section-card"><p style="color:var(--muted);text-align:center;padding:1rem;">Student has not filled in resume details yet.</p></div>'}
+
+      ${projects?.length ? `
+      <div class="section-card">
+        <h2>💻 Projects (${projects.length})</h2>
+        ${projects.map(p => `
+          <div class="project-card">
+            <div class="project-title">${p.title}</div>
+            <div class="project-desc">${p.description || ''}</div>
+            <div class="project-tech">${(p.techStack||[]).map(t=>`<span class="tech-tag">${t}</span>`).join('')}</div>
+            <div class="project-links">
+              ${p.githubLink ? `<a href="${p.githubLink}" target="_blank">GitHub →</a>` : ''}
+              ${p.liveLink ? `<a href="${p.liveLink}" target="_blank">Live Demo →</a>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>` : ''}
+    </div>`;
+}
+
+function renderNotFound(id) {
+  return `<div class="section-card"><div class="not-found">
+    <div class="icon">🔍</div>
+    <h3>Student Not Found</h3>
+    <p>No student found with ID "<strong>${id}</strong>". Please check the ID and try again.</p>
+  </div></div>`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast error show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function setAgeGroup(min, max) {
+  document.getElementById('advMinAge').value = min;
+  document.getElementById('advMaxAge').value = max;
+  document.querySelectorAll('.age-quick-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function clearAdvanced() {
+  ['advSkill','advDegree','advGradYear','advMinAge','advMaxAge'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('.age-quick-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('advResults').innerHTML = '';
+}
+
+async function searchAdvanced() {
+  const skill = document.getElementById('advSkill').value.trim();
+  const degree = document.getElementById('advDegree').value.trim();
+  const graduationYear = document.getElementById('advGradYear').value.trim();
+  const minAge = document.getElementById('advMinAge').value.trim();
+  const maxAge = document.getElementById('advMaxAge').value.trim();
+
+  if (!skill && !degree && !graduationYear && !minAge && !maxAge) {
+    showToast('Please enter at least one filter'); return;
+  }
+
+  const el = document.getElementById('advResults');
+  el.innerHTML = `<div class="section-card" style="text-align:center;color:var(--muted);padding:2rem;">🔍 Searching...</div>`;
+
+  const params = new URLSearchParams();
+  if (skill) params.append('skill', skill);
+  if (degree) params.append('degree', degree);
+  if (graduationYear) params.append('graduationYear', graduationYear);
+  if (minAge) params.append('minAge', minAge);
+  if (maxAge) params.append('maxAge', maxAge);
+
+  const res = await fetch('/api/recruiter/search-advanced?' + params.toString());
+  const data = await res.json();
+
+  if (!data.success) {
+    el.innerHTML = `<div class="section-card"><div class="not-found"><div class="icon">⚠️</div><h3>Error</h3><p>${data.message}</p></div></div>`;
+    return;
+  }
+  if (!data.results.length) {
+    el.innerHTML = `<div class="section-card"><div class="not-found"><div class="icon">🔍</div><h3>No students found</h3><p>Try adjusting your filters — no students matched the selected criteria.</p></div></div>`;
+    return;
+  }
+
+  const filters = [];
+  if (skill) filters.push(`Skill: <strong>${skill}</strong>`);
+  if (degree) filters.push(`Degree: <strong>${degree}</strong>`);
+  if (graduationYear) filters.push(`Grad Year: <strong>${graduationYear}</strong>`);
+  if (minAge || maxAge) filters.push(`Age: <strong>${minAge||'any'} – ${maxAge||'any'}</strong>`);
+
+  el.innerHTML = `
+    <div class="section-card">
+      <div class="results-header">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;">✅ ${data.count} Student${data.count!==1?'s':''} Found</div>
+          <div class="results-count" style="margin-top:0.3rem;">${filters.join(' &nbsp;•&nbsp; ')}</div>
+        </div>
+      </div>
+      ${data.results.map(r => `
+        <div class="adv-result-card">
+          <div class="adv-card-top">
+            <div>
+              <div class="adv-card-name">${r.student?.name || 'Unknown'}</div>
+              <div class="adv-card-meta">📧 ${r.student?.email || ''}</div>
+            </div>
+            <div class="adv-card-badges">
+              <span class="badge badge-id">${r.student?.studentId || '—'}</span>
+              ${r.age !== null ? `<span class="badge badge-age">Age ${r.age}</span>` : '<span class="badge" style="background:#f0ede8;color:var(--muted);">Age N/A</span>'}
+              ${r.cgpa ? `<span class="badge badge-cgpa">CGPA ${r.cgpa}</span>` : ''}
+            </div>
+          </div>
+          <div class="adv-card-skills">
+            ${(r.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('')}
+          </div>
+          <div class="adv-card-footer">
+            <div class="adv-card-edu">
+              🎓 ${[r.degree, r.branch, r.college, r.graduationYear].filter(Boolean).join(' • ')}
+            </div>
+            <button class="view-btn" onclick="viewStudentById('${r.student?.studentId}')">View Full Profile →</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method:'POST' });
+  window.location.href = '/login';
+}
+
+init();
+</script>
+</body>
+</html>

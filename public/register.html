@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — ResumePortal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0a0a0f; --paper:#f5f3ee; --accent:#e84545; --gold:#c9a84c; --muted:#6b6b78; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--ink); color:var(--paper); font-family:'DM Sans',sans-serif; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; }
+
+  .left { background:linear-gradient(135deg,#1a1a2e,#16213e); padding:4rem; display:flex; flex-direction:column; justify-content:center; border-right:1px solid rgba(255,255,255,0.06); }
+  .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; color:var(--paper); margin-bottom:3rem; }
+  .logo span { color:var(--accent); }
+  .left h2 { font-family:'Syne',sans-serif; font-size:2.2rem; font-weight:800; letter-spacing:-1px; margin-bottom:1rem; line-height:1.2; }
+  .left p { color:var(--muted); line-height:1.7; margin-bottom:2rem; }
+  .benefit { display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem; font-size:0.9rem; color:rgba(255,255,255,0.7); }
+  .benefit::before { content:'✓'; width:22px; height:22px; background:rgba(232,69,69,0.2); color:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; }
+
+  .right { padding:3rem 4rem; display:flex; flex-direction:column; justify-content:center; overflow-y:auto; }
+  .form-header { margin-bottom:2rem; }
+  .form-header h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-0.5px; margin-bottom:0.4rem; }
+  .form-header p { color:var(--muted); font-size:0.9rem; }
+  .form-header a { color:var(--accent); text-decoration:none; font-weight:500; }
+
+  .role-toggle { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; background:rgba(255,255,255,0.05); border-radius:10px; padding:4px; margin-bottom:1.8rem; }
+  .role-btn { padding:0.7rem; border:none; border-radius:7px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500; cursor:pointer; transition:all 0.2s; background:transparent; color:var(--muted); }
+  .role-btn.active { background:var(--accent); color:white; }
+
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .form-group { margin-bottom:1rem; }
+  label { display:block; font-size:0.78rem; font-weight:500; color:var(--muted); margin-bottom:0.4rem; letter-spacing:0.5px; text-transform:uppercase; }
+  input { width:100%; padding:0.8rem 1rem; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.1); border-radius:8px; color:var(--paper); font-family:'DM Sans',sans-serif; font-size:0.9rem; transition:border-color 0.2s; }
+  input:focus { outline:none; border-color:var(--accent); }
+  input::placeholder { color:rgba(255,255,255,0.2); }
+
+  .submit-btn { width:100%; padding:0.95rem; background:var(--accent); color:white; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:0.5rem; }
+  .submit-btn:hover { background:#c73333; transform:translateY(-1px); }
+  .submit-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+  .msg { padding:0.8rem 1rem; border-radius:8px; font-size:0.88rem; margin-top:1rem; display:none; }
+  .msg.error { background:rgba(232,69,69,0.15); border:1px solid rgba(232,69,69,0.3); color:#ff8080; }
+  .msg.success { background:rgba(72,199,142,0.15); border:1px solid rgba(72,199,142,0.3); color:#48c78e; }
+
+  #recruiterFields { display:none; }
+
+  @media(max-width:768px) {
+    body { grid-template-columns:1fr; }
+    .left { display:none; }
+    .right { padding:2rem; }
+    .form-row { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div class="logo">Resume<span>Portal</span></div>
+  <h2>Create Your Free Account</h2>
+  <p>Join the platform that connects talented students with great companies.</p>
+  <div class="benefit">Unique Student ID assigned automatically</div>
+  <div class="benefit">Upload resume & showcase projects</div>
+  <div class="benefit">Get discovered by top recruiters</div>
+  <div class="benefit">Free to use, always</div>
+</div>
+
+<div class="right">
+  <div class="form-header">
+    <h1>Register</h1>
+    <p>Already have an account? <a href="/login">Login here</a></p>
+  </div>
+
+  <div class="role-toggle">
+    <button class="role-btn active" id="btn-student" onclick="setRole('student')">🎓 Student</button>
+    <button class="role-btn" id="btn-recruiter" onclick="setRole('recruiter')">🏢 Recruiter</button>
+  </div>
+
+  <form id="registerForm">
+    <input type="hidden" id="role" value="student">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="name" placeholder="Your full name" required>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Min. 6 characters" required minlength="6">
+    </div>
+
+    <div id="recruiterFields">
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" id="company" placeholder="Your company name">
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">Create Account →</button>
+    <div class="msg" id="msg"></div>
+  </form>
+</div>
+
+<script>
+  // Check URL param for pre-selecting role
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('role') === 'recruiter') setRole('recruiter');
+
+  function setRole(role) {
+    document.getElementById('role').value = role;
+    document.getElementById('btn-student').classList.toggle('active', role === 'student');
+    document.getElementById('btn-recruiter').classList.toggle('active', role === 'recruiter');
+    document.getElementById('recruiterFields').style.display = role === 'recruiter' ? 'block' : 'none';
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const msg = document.getElementById('msg');
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+    msg.style.display = 'none';
+
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        role: document.getElementById('role').value,
+        company: document.getElementById('company').value
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      msg.className = 'msg success';
+      msg.textContent = '✓ ' + data.message;
+      msg.style.display = 'block';
+      setTimeout(() => window.location.href = '/login', 1500);
+    } else {
+      msg.className = 'msg error';
+      msg.textContent = '✗ ' + data.message;
+      msg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Create Account →';
+    }
+  });
+</script>
+</body>
+</html>
